@@ -1,0 +1,1299 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <title>RDP io Tutorial</title>
+ <style>
+ :root {
+ --bg: #f4f2ee;
+ --panel: #fff;
+ --ink: #1a1a1a;
+ --muted: #555;
+ --accent: #2c4a72;
+ --accent2: #3d6a9e;
+ --border: #b8b4ac;
+ --code-bg: #e8e4dc;
+ --warn: #7a3a00;
+ --warn-bg: #fff3e0;
+ --ok-bg: #e8f2e8;
+ --table-head: #3a5578;
+ }
+ * { box-sizing: border-box; }
+ html { scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ font: 15px/1.55 "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+ color: var(--ink);
+ background: var(--bg);
+ }
+.wrap { max-width: 920px; margin: 0 auto; padding: 16px 20px 64px; }
+.lang-bar {
+ display: flex;
+ justify-content: flex-end;
+ align-items: center;
+ gap: 6px;
+ margin-bottom: 10px;
+ font-size:.9rem;
+ }
+.lang-bar span { color: var(--muted); margin-right: 4px; }
+.lang-bar button {
+ border: 1px solid var(--border);
+ background: var(--panel);
+ color: var(--accent);
+ padding: 4px 12px;
+ border-radius: 3px;
+ cursor: pointer;
+ font: inherit;
+ font-weight: 600;
+ }
+.lang-bar button:hover { background: #eef2f8; }
+.lang-bar button.active {
+ background: var(--accent);
+ color: #fff;
+ border-color: var(--accent);
+ }
+ [data-lang] { display: none; }
+ html[data-tutorial-lang="en"] [data-lang="en"],
+ html[data-tutorial-lang="es"] [data-lang="es"] { display: block; }
+ html[data-tutorial-lang="en"] span[data-lang="en"],
+ html[data-tutorial-lang="es"] span[data-lang="es"],
+ html[data-tutorial-lang="en"] a[data-lang="en"],
+ html[data-tutorial-lang="es"] a[data-lang="es"] { display: inline; }
+ html[data-tutorial-lang="en"] tr[data-lang="en"],
+ html[data-tutorial-lang="es"] tr[data-lang="es"] { display: table-row; }
+ html[data-tutorial-lang="en"] li[data-lang="en"],
+ html[data-tutorial-lang="es"] li[data-lang="es"] { display: list-item; }
+ header.hero {
+ background: linear-gradient(135deg, #2c4a72 0%, #4a6c9b 55%, #6a8fb8 100%);
+ color: #fff;
+ padding: 22px 24px 20px;
+ border-radius: 6px;
+ margin-bottom: 18px;
+ box-shadow: 0 2px 8px rgba(0,0,0,.18);
+ }
+ header.hero h1 { margin: 0 0 6px; font-size: 1.55rem; font-weight: 700; }
+ header.hero p { margin: 0; opacity:.95; font-size:.95rem; }
+.cite {
+ margin-top: 12px;
+ padding: 10px 12px;
+ background: rgba(0,0,0,.18);
+ border-radius: 4px;
+ font-size:.88rem;
+ line-height: 1.45;
+ }
+.cite a { color: #dce9ff; }
+ nav.toc {
+ background: var(--panel);
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ padding: 12px 16px 14px;
+ margin-bottom: 20px;
+ }
+ nav.toc h2 { margin: 0 0 8px; font-size: 1.05rem; color: var(--accent); }
+ nav.toc ol { margin: 0; padding-left: 1.35rem; columns: 2; column-gap: 24px; }
+ nav.toc li { break-inside: avoid; margin: 3px 0; }
+ nav.toc a { color: var(--accent2); text-decoration: none; }
+ nav.toc a:hover { text-decoration: underline; }
+ @media (max-width: 640px) {
+ nav.toc ol { columns: 1; }
+ }
+ section {
+ background: var(--panel);
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ padding: 16px 18px 18px;
+ margin-bottom: 14px;
+ }
+ section h2 {
+ margin: 0 0 10px;
+ padding-bottom: 6px;
+ border-bottom: 2px solid var(--accent);
+ font-size: 1.2rem;
+ color: var(--accent);
+ }
+ section h3 {
+ margin: 16px 0 6px;
+ font-size: 1.02rem;
+ color: #243d5c;
+ }
+ p { margin: 0 0 10px; }
+ ul, ol { margin: 0 0 10px; padding-left: 1.35rem; }
+ li { margin: 4px 0; }
+ b.ui, strong.ui {
+ font-weight: 700;
+ color: #12253d;
+ background: var(--code-bg);
+ padding: 0 4px;
+ border-radius: 2px;
+ white-space: nowrap;
+ }
+.note,.tip,.warn {
+ padding: 10px 12px;
+ border-radius: 4px;
+ margin: 10px 0;
+ font-size:.92rem;
+ }
+.note { background: #eef2f8; border-left: 4px solid var(--accent2); }
+.tip { background: var(--ok-bg); border-left: 4px solid #3a7a3a; }
+.warn { background: var(--warn-bg); border-left: 4px solid #c07020; color: var(--warn); }
+ table.matrix {
+ width: 100%;
+ border-collapse: collapse;
+ font-size:.86rem;
+ margin: 10px 0 4px;
+ }
+ table.matrix th, table.matrix td {
+ border: 1px solid var(--border);
+ padding: 6px 8px;
+ vertical-align: top;
+ text-align: left;
+ }
+ table.matrix th {
+ background: var(--table-head);
+ color: #fff;
+ font-weight: 600;
+ }
+ table.matrix tr:nth-child(even) td { background: #f7f5f1; }
+ table.matrix code {
+ font: 0.9em/1.3 Consolas, "Courier New", monospace;
+ background: var(--code-bg);
+ padding: 1px 3px;
+ border-radius: 2px;
+ }
+.steps { counter-reset: step; list-style: none; padding-left: 0; }
+.steps > li {
+ position: relative;
+ padding: 8px 10px 8px 42px;
+ margin: 0 0 8px;
+ background: #f7f5f1;
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ }
+.steps > li::before {
+ counter-increment: step;
+ content: counter(step);
+ position: absolute;
+ left: 8px; top: 8px;
+ width: 26px; height: 26px;
+ line-height: 26px;
+ text-align: center;
+ background: var(--accent);
+ color: #fff;
+ border-radius: 50%;
+ font-weight: 700;
+ font-size:.85rem;
+ }
+ footer.doc {
+ margin-top: 8px;
+ padding: 14px 4px;
+ font-size:.85rem;
+ color: var(--muted);
+ text-align: center;
+ }
+ footer.doc a { color: var(--accent2); }
+.back-top { float: right; font-size:.8rem; font-weight: 400; }
+.kbd {
+ display: inline-block;
+ padding: 0 5px;
+ border: 1px solid #999;
+ border-bottom-width: 2px;
+ border-radius: 3px;
+ background: #eee;
+ font: 0.85em Consolas, monospace;
+ }
+ 
+    header.hero {
+      position: relative;
+      overflow: hidden;
+    }
+    header.hero::after {
+      content: "";
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      pointer-events: none;
+    }
+    header.hero a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+    header.hero .manual-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(255,255,255,.18);
+      color: #fff !important;
+      text-decoration: none !important;
+      font-weight: 600;
+    }
+    header.hero .manual-link:hover { background: rgba(255,255,255,.28); }
+    .cite { backdrop-filter: blur(2px); }
+    nav.toc {
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    section {
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    section h2 {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .back-top { margin-left: auto; }
+    a { color: var(--accent2); }
+
+  </style>
+</head>
+<body>
+ <div class="wrap">
+ <div class="lang-bar" role="group" aria-label="Language">
+ <span data-lang="en">Language:</span>
+ <span data-lang="es">Idioma:</span>
+ <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+ <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+ </div>
+
+ <header class="hero">
+ <div data-lang="en">
+ <h1>RDP io · Tutorial</h1>
+ <p>
+ A practical guide to detecting recombination in the browser.
+ Button and menu names match the English UI.
+ For full background and method detail,
+ <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">see here in the manual</a>
+ (RDP5 Instruction Manual, PDF).
+ </p>
+ <div class="cite">
+ <strong>How to cite.</strong>
+ When publishing results from RDP5 or RDP io, please cite:
+ <em>Martin DP, Varsani A, Roumagnac P, Botha G, Maslamoney S, Schwab T, Kelz Z, Kumar V &amp; Murrell B (2021) RDP5: a computer program for analyzing recombination in, and removing signals of recombination from, nucleotide sequence datasets. Virus Evolution 7: veaa087. <a href="https://doi.org/10.1093/ve/veaa087" target="_blank" rel="noopener">doi:10.1093/ve/veaa087</a></em>
+ A new publication covering this browser version (RDP io) will also be included when available.
+ <br />
+ <a class="manual-link" href="./RDP5Manual.pdf" target="_blank" rel="noopener">Open the RDP5 Manual (PDF)</a>
+ </div>
+ </div>
+ <div data-lang="es">
+ <h1>RDP io · Tutorial</h1>
+ <p>
+ Guía práctica para detectar recombinación en el navegador.
+ Los nombres de botones y menús coinciden con la interfaz en inglés.
+ Para el detalle completo de métodos,
+ <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">ver aquí en el manual</a>
+ (RDP5 Instruction Manual, PDF).
+ </p>
+ <div class="cite">
+ <strong>Cómo citar.</strong>
+ Al publicar resultados de RDP5 o RDP io, cita:
+ <em>Martin DP, Varsani A, Roumagnac P, Botha G, Maslamoney S, Schwab T, Kelz Z, Kumar V &amp; Murrell B (2021) RDP5: a computer program for analyzing recombination in, and removing signals of recombination from, nucleotide sequence datasets. Virus Evolution 7: veaa087. <a href="https://doi.org/10.1093/ve/veaa087" target="_blank" rel="noopener">doi:10.1093/ve/veaa087</a></em>
+ También se incluirá una nueva publicación de esta versión en el navegador (RDP io) cuando esté disponible.
+ <br />
+ <a class="manual-link" href="./RDP5Manual.pdf" target="_blank" rel="noopener">Abrir el Manual RDP5 (PDF)</a>
+ </div>
+ </div>
+ </header>
+
+ <nav class="toc" id="toc" aria-label="Table of contents">
+ <h2 data-lang="en">Contents</h2>
+ <h2 data-lang="es">Índice</h2>
+ <ol>
+ <li data-lang="en"><a href="#intro">Introduction and ideal workflow</a></li>
+ <li data-lang="es"><a href="#intro">Introducción y flujo ideal</a></li>
+ <li data-lang="en"><a href="#dataset">Dataset and alignment</a></li>
+ <li data-lang="es"><a href="#dataset">Dataset y alineamiento</a></li>
+ <li data-lang="en"><a href="#open">Open an alignment</a></li>
+ <li data-lang="es"><a href="#open">Abrir alineamiento</a></li>
+ <li data-lang="en"><a href="#options">Options…</a></li>
+ <li data-lang="es"><a href="#options">Options…</a></li>
+ <li data-lang="en"><a href="#run">Run — full scan</a></li>
+ <li data-lang="es"><a href="#run">Run — escaneo completo</a></li>
+ <li data-lang="en"><a href="#events">Unique events and Confirm</a></li>
+ <li data-lang="es"><a href="#events">Eventos únicos y Confirm</a></li>
+ <li data-lang="en"><a href="#accept">Accept / Reject</a></li>
+ <li data-lang="es"><a href="#accept">Accept / Reject</a></li>
+ <li data-lang="en"><a href="#rescan">Re-scan masked</a></li>
+ <li data-lang="es"><a href="#rescan">Re-scan masked</a></li>
+ <li data-lang="en"><a href="#trees">Trees</a></li>
+ <li data-lang="es"><a href="#trees">Trees</a></li>
+ <li data-lang="en"><a href="#visrd">VisRD</a></li>
+ <li data-lang="es"><a href="#visrd">VisRD</a></li>
+ <li data-lang="en"><a href="#identity">Identity plot</a></li>
+ <li data-lang="es"><a href="#identity">Identity plot</a></li>
+ <li data-lang="en"><a href="#profiles">Profiles / Manual</a></li>
+ <li data-lang="es"><a href="#profiles">Profiles / Manual</a></li>
+ <li data-lang="en"><a href="#bp">Breakpoints</a></li>
+ <li data-lang="es"><a href="#bp">Breakpoints</a></li>
+ <li data-lang="en"><a href="#recrate">Rec. rate / LDHat</a></li>
+ <li data-lang="es"><a href="#recrate">Rec. rate / LDHat</a></li>
+ <li data-lang="en"><a href="#phi">PHI test</a></li>
+ <li data-lang="es"><a href="#phi">PHI test</a></li>
+ <li data-lang="en"><a href="#fubar">FUBAR</a></li>
+ <li data-lang="es"><a href="#fubar">FUBAR</a></li>
+ <li data-lang="en"><a href="#schema">SCHEMA</a></li>
+ <li data-lang="es"><a href="#schema">SCHEMA</a></li>
+ <li data-lang="en"><a href="#save">Save — variants</a></li>
+ <li data-lang="es"><a href="#save">Save — variantes</a></li>
+ <li data-lang="en"><a href="#qvr">QvR / Manual</a></li>
+ <li data-lang="es"><a href="#qvr">QvR / Manual</a></li>
+ <li data-lang="en"><a href="#matrix">Where to find each tool</a></li>
+ <li data-lang="es"><a href="#matrix">Dónde está cada herramienta</a></li>
+ <li data-lang="en"><a href="#cites">Citations and usage notes</a></li>
+ <li data-lang="es"><a href="#cites">Citas y licencia de uso</a></li>
+ </ol>
+ </nav>
+
+ <!-- 1 -->
+ <section id="intro">
+ <div data-lang="en">
+ <h2>1. Introduction and ideal workflow <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ RDP io is the browser edition of the RDP5/RDP6 workflow:
+ detect recombination signals in a nucleotide alignment and
+ reduce them to a minimal set of plausible <em>unique events</em>.
+ as in the manual, the automatic result is only a
+ <strong>preliminary hypothesis</strong>: review it event by event.
+ </p>
+ <ol class="steps">
+ <li>Prepare a good dataset and a good alignment (outside RDP io; e.g.
+ <a href="https://mafft.cbrc.jp/alignment/server/" target="_blank" rel="noopener">MAFFT</a>).</li>
+ <li>Open the alignment with <b class="ui">Open...</b> (or <b class="ui">Example</b>).</li>
+ <li>Set methods and linear/circular genome in <b class="ui">Options...</b>.</li>
+ <li>Launch <b class="ui">▶ Run ▾</b> → <em>Full exploratory scan</em>.</li>
+ <li>Review the <em>Unique recombination events</em> list and the <em>Recombination info</em> panel.</li>
+ <li>Correct breakpoints / roles if needed; <b class="ui">Accept</b> or <b class="ui">Reject</b>.</li>
+ <li>After corrections, <b class="ui">Re-scan masked</b> to reformulate non-accepted events.</li>
+ <li>Complement with Trees, VisRD, Identity, Breakpoints, Rec. rate, PHI, FUBAR, SCHEMA, QvR.</li>
+ <li>Save the project / “recombination-free” alignments with <b class="ui">Save ▾</b>.</li>
+ </ol>
+ <div class="tip">
+ In a hurry? Stay on this page, or
+ <a href="./RDP5Manual.pdf">RDP5Manual.pdf</a>.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>1. Introducción y flujo ideal <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ RDP io es la edición en el navegador del flujo de trabajo de RDP5/RDP6:
+ detectar señales de recombinación en un alineamiento de nucleótidos y
+ reducirlas a un conjunto mínimo de <em>eventos únicos</em> plausibles.
+ Como en el manual, el resultado automático es solo una
+ <strong>hipótesis preliminar</strong>: hay que revisarla evento a evento.
+ </p>
+ <ol class="steps">
+ <li>Preparar un buen dataset y un buen alineamiento (fuera de RDP io; p.&nbsp;ej.
+ <a href="https://mafft.cbrc.jp/alignment/server/" target="_blank" rel="noopener">MAFFT</a>).</li>
+ <li>Abrir el alineamiento con <b class="ui">Open...</b> (o <b class="ui">Example</b>).</li>
+ <li>Ajustar métodos y genoma lineal/circular en <b class="ui">Options...</b>.</li>
+ <li>Lanzar <b class="ui">▶ Run ▾</b> → <em>Full exploratory scan</em>.</li>
+ <li>Revisar la lista <em>Unique recombination events</em> y el panel <em>Recombination info</em>.</li>
+ <li>Corregir breakpoints / roles si hace falta; <b class="ui">Accept</b> o <b class="ui">Reject</b>.</li>
+ <li>Tras correcciones, <b class="ui">Re-scan masked</b> para reformular eventos no aceptados.</li>
+ <li>Complementar con Trees, VisRD, Identity, Breakpoints, Rec. rate, PHI, FUBAR, SCHEMA, QvR.</li>
+ <li>Guardar proyecto / alineamientos “libres de recombinación” con <b class="ui">Save ▾</b>.</li>
+ </ol>
+ <div class="tip">
+ ¿Con prisa? Quédate en esta página, o
+ <a href="./RDP5Manual.pdf">RDP5Manual.pdf</a>.
+ </div>
+ </div>
+ </section>
+
+ <!-- 2 -->
+ <section id="dataset">
+ <div data-lang="en">
+ <h2>2. Dataset and alignment <a class="back-top" href="#toc">↑ contents</a></h2>
+ <h3>Compile a good dataset</h3>
+ <ul>
+ <li>At least 3 sequences; enough diversity (not identical).</li>
+ <li>Ideal: pairs with &gt;70&nbsp;% identity; avoid pairs &lt;60&nbsp;% (false positives from poor alignment).</li>
+ <li>Remove identical duplicates; the manual’s approximate threshold
+ <code>Y = (2 ln 4X) / L</code> helps avoid overly close pairs
+ (X = number of sequences, L = length).</li>
+ <li>In RDP io: <b class="ui">Edit ▾</b> → <em>Auto-mask for detection power</em>
+ masks very close sequences (MaskSeq=1) so multiple-testing correction is less severe.</li>
+ </ul>
+ <h3>Make a good alignment</h3>
+ <ul>
+ <li>Use
+ <a href="https://mafft.cbrc.jp/alignment/server/" target="_blank" rel="noopener">MAFFT</a>
+ (or Clustal / MUSCLE / POA) <em>before</em> opening the file here; RDP io does not align.</li>
+ <li>Visually check gappy or poorly conserved regions; stagger or remove unrecoverable columns.</li>
+ <li>In <b class="ui">Options...</b> you can enable alignment consistency checking
+ (<em>Check alignment consistency</em> / RealignFlag).</li>
+ </ul>
+ <div class="warn">
+ All detection methods are very sensitive to poor alignment: it often appears
+ as false “recombination”. More detail: <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">see here in the manual</a>.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>2. Dataset y alineamiento <a class="back-top" href="#toc">↑ índice</a></h2>
+ <h3>Compilar un buen dataset</h3>
+ <ul>
+ <li>Mínimo 3 secuencias; diversidad suficiente (no idénticas).</li>
+ <li>Ideal: pares con &gt;70&nbsp;% identidad; evitar pares &lt;60&nbsp;% (falsos positivos por mal alineamiento).</li>
+ <li>Eliminar duplicados idénticos; el umbral aproximado del manual
+ <code>Y = (2 ln 4X) / L</code> ayuda a no incluir pares demasiado cercanos
+ (X = nº de secuencias, L = longitud).</li>
+ <li>En RDP io: <b class="ui">Edit ▾</b> → <em>Auto-mask for detection power</em>
+ enmascara secuencias muy cercanas (MaskSeq=1) para endurecer menos la corrección múltiple.</li>
+ </ul>
+ <h3>Hacer un buen alineamiento</h3>
+ <ul>
+ <li>Usa
+ <a href="https://mafft.cbrc.jp/alignment/server/" target="_blank" rel="noopener">MAFFT</a>
+ (o Clustal / MUSCLE / POA) <em>antes</em> de abrir el archivo aquí; RDP io no alinea.</li>
+ <li>Revisa a ojo regiones gappy o poco conservadas; “stagger” o elimina columnas irrecuperables.</li>
+ <li>En <b class="ui">Options...</b> puedes activar la comprobación de consistencia de alineamiento
+ (<em>Check alignment consistency</em> / RealignFlag).</li>
+ </ul>
+ <div class="warn">
+ Todos los métodos de detección son muy sensibles al mal alineamiento: suele aparecer
+ como “recombinación” falsa. Más detalle: <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">ver aquí en el manual</a>.
+ </div>
+ </div>
+ </section>
+
+ <!-- 3 -->
+ <section id="open">
+ <div data-lang="en">
+ <h2>3. Open an alignment <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>Click <b class="ui">Open...</b> and choose FASTA, NEXUS, PHYLIP, CLUSTAL, or a project
+ <code>.json</code> / <code>.rdp</code> / <code>.rdp5</code>.</li>
+ <li>Alternatively: <b class="ui">Load project...</b>, <b class="ui">Recent ▾</b>, or
+ <b class="ui">Example</b> (synthetic recombinant alignment).</li>
+ <li>Check the left <em>Alignment</em> panel (sequence count, length) and the
+ <b class="ui">Alignment</b> tab (MSA).</li>
+ </ol>
+ <div class="note">
+ Recognised formats (<a href="./RDP5Manual.pdf" target="_blank" rel="noopener">see here in the manual</a>): PHYLIP, FASTA, CLUSTAL, NEXUS, etc.
+ Drag-and-drop onto the window also works.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>3. Abrir un alineamiento <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Pulsa <b class="ui">Open...</b> y elige FASTA, NEXUS, PHYLIP, CLUSTAL, o un proyecto
+ <code>.json</code> / <code>.rdp</code> / <code>.rdp5</code>.</li>
+ <li>Alternativa: <b class="ui">Load project...</b>, <b class="ui">Recent ▾</b>, o
+ <b class="ui">Example</b> (alineamiento sintético recombinante).</li>
+ <li>Comprueba el panel izquierdo <em>Alignment</em> (nº de secuencias, longitud) y la pestaña
+ <b class="ui">Alignment</b> (MSA).</li>
+ </ol>
+ <div class="note">
+ Formatos reconocidos (<a href="./RDP5Manual.pdf" target="_blank" rel="noopener">ver aquí en el manual</a>): PHYLIP, FASTA, CLUSTAL, NEXUS, etc.
+ Arrastrar y soltar el archivo sobre la ventana también funciona.
+ </div>
+ </div>
+ </section>
+
+ <!-- 4 -->
+ <section id="options">
+ <div data-lang="en">
+ <h2>4. Options… — preliminary setup <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>Open <b class="ui">Options...</b>.</li>
+ <li>Under General: indicate whether sequences are <em>circular</em> or use the
+ <em>Linear genome</em> preset.</li>
+ <li>Enable primary detection methods. By default it is reasonable to use
+ RDP + GENECONV + MaxChi; for datasets &lt;50 sequences you can add
+ Chimaera, Bootscan, SiScan and 3Seq.</li>
+ <li>Bootscan / SiScan can run in secondary mode (only confirm signals from other methods)
+ via <em>secondary scope</em> — faster on large datasets.</li>
+ <li>Review the maximum acceptable p-value and multiple-comparison correction (Bonferroni / step-down).</li>
+ <li>Data processing: <em>Polish breakpoints</em>, <em>Disentangle overlapping</em>
+ (only if there is little recombination; can loop), realistic/conservative
+ recombinant grouping.</li>
+ <li>Adjust windows/steps per method if you seek short tracts (&lt;200&nbsp;bp).
+ MaxChi/Chimaera ≈ 2× the RDP window; Bootscan/SiScan similar to each other.</li>
+ <li>Confirm with OK and return to the main toolbar.</li>
+ </ol>
+ <div class="tip">
+ For occasional users, the desktop defaults  are usually enough. Change mainly methods, linear/circular,
+ windows and tree models.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>4. Options… — configuración preliminar <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Abre <b class="ui">Options...</b>.</li>
+ <li>En General: indica si las secuencias son <em>circular</em> o usa el preset
+ <em>Linear genome</em>.</li>
+ <li>Activa los métodos de detección primaria. Por defecto es razonable usar
+ RDP + GENECONV + MaxChi; en datasets &lt;50 secuencias puedes añadir
+ Chimaera, Bootscan, SiScan y 3Seq.</li>
+ <li>Bootscan / SiScan pueden ir en modo secundario (solo confirmar señales de otros métodos)
+ vía <em>secondary scope</em> — más rápido en datasets grandes.</li>
+ <li>Revisa p-valor máximo aceptable y corrección por comparaciones múltiples (Bonferroni / step-down).</li>
+ <li>Data processing: <em>Polish breakpoints</em>, <em>Disentangle overlapping</em>
+ (solo si hay poca recombinación; puede entrarse en bucles), agrupación
+ realistic/conservative de recombinantes.</li>
+ <li>Ajusta ventanas/pasos por método si buscas tractos cortos (&lt;200&nbsp;bp).
+ MaxChi/Chimaera ≈ 2× la ventana de RDP; Bootscan/SiScan similares entre sí.</li>
+ <li>Confirma con OK y vuelve a la barra principal.</li>
+ </ol>
+ <div class="tip">
+ Para usuarios ocasionales, los valores por defecto del escritorio  suelen bastar. Cambia sobre todo métodos, lineal/circular,
+ ventanas y modelos de árboles.
+ </div>
+ </div>
+ </section>
+
+ <!-- 5 -->
+ <section id="run">
+ <div data-lang="en">
+ <h2>5. Run — full exploratory scan <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>Click <b class="ui">▶ Run ▾</b> → <em>Full exploratory scan (all methods enabled in Options)</em>.</li>
+ <li>There are two phases: (1) signal detection per method; (2) merging into unique events (GetSupers).</li>
+ <li>If it takes too long: <b class="ui">■ Stop</b> — you keep partial results.</li>
+ <li>The Run menu also offers single-method scans (<em>Automated RDP</em>, GENECONV, …)
+ and Manual shortcuts (opens the Profiles tab).</li>
+ </ol>
+ <p>
+ After the scan you will see the <em>Recombination overview</em> (colour blocks),
+ the unique-events table and the <em>Recombination info</em> panel with p-values,
+ per-method confirmation table and uppercase warnings (doubtful breakpoints,
+ possible misalignment, unsampled parental, etc.).
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>5. Run — escaneo exploratorio completo <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Pulsa <b class="ui">▶ Run ▾</b> → <em>Full exploratory scan (all methods enabled in Options)</em>.</li>
+ <li>Hay dos fases: (1) detección de señales por método; (2) fusión en eventos únicos (GetSupers).</li>
+ <li>Si tarda demasiado: <b class="ui">■ Stop</b> — conservarás resultados parciales.</li>
+ <li>El menú Run también ofrece escaneos de un solo método (<em>Automated RDP</em>, GENECONV, …)
+ y atajos a Manual (abre la pestaña Profiles).</li>
+ </ol>
+ <p>
+ Tras el escaneo verás el <em>Recombination overview</em> (bloques de color),
+ la tabla de eventos únicos y el panel <em>Recombination info</em> con p-valores,
+ tabla de confirmación por método y avisos en mayúsculas (breakpoints dudosos,
+ posible mal alineamiento, parental no muestreado, etc.).
+ </p>
+ </div>
+ </section>
+
+ <!-- 6 -->
+ <section id="events">
+ <div data-lang="en">
+ <h2>6. Interpreting unique events and Confirm <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ The manual warns of four typical automatic-analysis mistakes:
+ misplaced breakpoints; parental labelled as recombinant; over-grouping
+ of descendants of the same ancestor; or under-grouping (several events where there is one).
+ Earlier errors in that list are more serious: correct from event&nbsp;1.
+ </p>
+ <ol class="steps">
+ <li>Select events in the <em>Unique recombination events</em> list or with
+ <b class="ui">Go ▾</b> (Previous / Next / Go to best unaccepted).</li>
+ <li>Read <em>Recombination info</em>: breakpoints, major/minor parents, confirmation table
+ (how many methods support the signal) and warnings.</li>
+ <li>Filter by number of methods (≥N) in the event list (ConsensusProg) if you want to be stricter.</li>
+ <li>Compare plots in the overview / profile tabs to see whether peaks match
+ the pink edges of the recombinant tract.</li>
+ </ol>
+ <div class="note">
+ The desktop “confirmation table” appears here in the info panel
+ and in the event detail (methods that detected the signal and p-values).
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>6. Interpretar eventos únicos y Confirm <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ El manual advierte cuatro errores típicos del análisis automático:
+ breakpoints mal situados; parental etiquetado como recombinante; sobre-agrupación
+ de descendientes del mismo ancestro; o infra-agrupación (varios eventos donde hay uno).
+ Los errores al principio de la lista son más graves: corrige desde el evento&nbsp;1.
+ </p>
+ <ol class="steps">
+ <li>Selecciona eventos en la lista <em>Unique recombination events</em> o con
+ <b class="ui">Go ▾</b> (Previous / Next / Go to best unaccepted).</li>
+ <li>Lee <em>Recombination info</em>: breakpoints, major/minor parents, confirmation table
+ (cuántos métodos apoyan la señal) y advertencias.</li>
+ <li>Filtra por nº de métodos (≥N) en la lista de eventos (ConsensusProg) si quieres ser más estricto.</li>
+ <li>Compara gráficos en el overview / pestañas de perfiles para ver si los picos coinciden
+ con los bordes rosa del tracto recombinante.</li>
+ </ol>
+ <div class="note">
+ La “confirmation table” del escritorio aparece aquí en el panel de información
+ y en el detalle del evento (métodos que detectaron la señal y p-valores).
+ </div>
+ </div>
+ </section>
+
+ <!-- 7 -->
+ <section id="accept">
+ <div data-lang="en">
+ <h2>7. Accept / Reject <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>Choose the scope in the <em>on</em> dropdown:
+ <b class="ui">unique event</b> (whole group) or <b class="ui">this detection</b>.</li>
+ <li><b class="ui">Accept</b> — mark the hypothesis as reviewed/accepted (distinct border;
+ skipped when navigating if Skip accepted is on).</li>
+ <li><b class="ui">Reject</b> — hide / discard the signal (recoverable with Accept).</li>
+ <li>Correct roles with <b class="ui">Edit ▾</b>:
+ Swap daughter ↔ minor/major, Swap major ↔ minor, Place beginning/ending breakpoint,
+ Merge events, Re-identify recombinants.</li>
+ </ol>
+ <div class="warn">
+ Accept only when (1) the recombinant is correct, (2) breakpoints are reasonable and
+ (3) the grouping of sequences sharing the same signal is correct.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>7. Accept / Reject <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Elige el alcance en el desplegable <em>on</em>:
+ <b class="ui">unique event</b> (todo el grupo) o <b class="ui">this detection</b>.</li>
+ <li><b class="ui">Accept</b> — marcas la hipótesis como revisada/aceptada (borde distintivo;
+ se omite al navegar si activas Skip accepted).</li>
+ <li><b class="ui">Reject</b> — ocultas / descartas la señal (recuperable con Accept).</li>
+ <li>Corrige roles con <b class="ui">Edit ▾</b>:
+ Swap daughter ↔ minor/major, Swap major ↔ minor, Place beginning/ending breakpoint,
+ Merge events, Re-identify recombinants.</li>
+ </ol>
+ <div class="warn">
+ Acepta solo cuando (1) el recombinante es el correcto, (2) los breakpoints son razonables y
+ (3) el agrupamiento de secuencias con la misma señal es correcto.
+ </div>
+ </div>
+ </section>
+
+ <!-- 8 -->
+ <section id="rescan">
+ <div data-lang="en">
+ <h2>8. Re-scan masked and Re-Check all <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>After Accept of a corrected event, click <b class="ui">Re-scan masked</b>.
+ It masks regions of accepted events and re-scans the rest
+ (approximate equivalent of desktop DoRDP redo / MissingData).</li>
+ <li><b class="ui">Re-Check all</b> re-runs a full scan while keeping Accepts
+ (RCheckMnu).</li>
+ <li>Continue with the next unaccepted event (<b class="ui">Go ▾</b> → Next /
+ Skip accepted).</li>
+ </ol>
+ <div class="tip">
+ Save often with <b class="ui">Save project</b> (<code>.json</code>) or
+ <b class="ui">Save ▾</b> → Project as RDP5 / RDP text — <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">see here in the manual</a>.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>8. Re-scan masked y Re-Check all <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Tras Accept de un evento corregido, pulsa <b class="ui">Re-scan masked</b>.
+ Enmascara las regiones de eventos aceptados y vuelve a escanear el resto
+ (equivalente aproximado al DoRDP redo / MissingData del escritorio).</li>
+ <li><b class="ui">Re-Check all</b> relanza un escaneo completo manteniendo los Accept
+ (RCheckMnu).</li>
+ <li>Continúa con el siguiente evento no aceptado (<b class="ui">Go ▾</b> → Next /
+ Skip accepted).</li>
+ </ol>
+ <div class="tip">
+ Guarda a menudo con <b class="ui">Save project</b> (<code>.json</code>) o
+ <b class="ui">Save ▾</b> → Project as RDP5 / RDP text — <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">ver aquí en el manual</a>.
+ </div>
+ </div>
+ </section>
+
+ <!-- 9 -->
+ <section id="trees">
+ <div data-lang="en">
+ <h2>9. Trees — validate the recombinant <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>Open the <b class="ui">Trees</b> tab.</li>
+ <li>Compare a tree of the recombinant tract (minor) with one of the flanks (major).
+ The recombinant usually “moves” between clades more than the parentals.</li>
+ <li>Choose NJ / UPGMA / ML (HKY+Γ) / Bayes (MH-NNI) according to patience and dataset size.</li>
+ <li>SH/KH (RELL) tests are available in the panel for region vs flank.</li>
+ <li>Interaction: tip click = name+distance; internal click = swap children;
+ Shift+click = reroot; Copy for clipboard.</li>
+ </ol>
+ <div class="note">
+ On the desktop the Trees button is on the toolbar; here it lives as a tab, with the same role
+ of contrasting alignment partitions defined by the selected event’s breakpoints.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>9. Trees — validar el recombinante <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Abre la pestaña <b class="ui">Trees</b>.</li>
+ <li>Compara un árbol del tracto recombinante (minor) con uno de los flancos (major).
+ El recombinante suele “moverse” más entre clados que los parentales.</li>
+ <li>Elige NJ / UPGMA / ML (HKY+Γ) / Bayes (MH-NNI) según paciencia y tamaño del dataset.</li>
+ <li>Pruebas SH/KH (RELL) disponibles en el panel para región vs flanco.</li>
+ <li>Interacción: clic en tip = nombre+distancia; clic interno = swap hijos;
+ Shift+clic = reroot; Copy para portapapeles.</li>
+ </ol>
+ <div class="note">
+ En el escritorio el botón Trees está en la barra; aquí vive como pestaña, con la misma función
+ de contrastar particiones del alineamiento definidas por los breakpoints del evento seleccionado.
+ </div>
+ </div>
+ </section>
+
+ <!-- 10 -->
+ <section id="visrd">
+ <div data-lang="en">
+ <h2>10. VisRD <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ VisRD (Lemey et al., 2009) visualises phylogenetic “occupancy” density along
+ the alignment. In RDP io: <b class="ui">VisRD</b> tab — compute and draw the profile;
+ export CSV via <b class="ui">Save ▾</b> → Plot CSV: VisRD.
+ </p>
+ <p>
+ Useful as a secondary check of an already detected event; the manual notes that
+ VisRD Highway / GENECONV plots are not the best for refining breakpoints
+ (prefer MaxChi, Chimaera, BURT, Bootscan).
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>10. VisRD <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ VisRD (Lemey et al., 2009) visualiza la densidad de “ocupación” filogenética a lo largo
+ del alineamiento. En RDP io: pestaña <b class="ui">VisRD</b> — calcula y dibuja el perfil;
+ exporta CSV vía <b class="ui">Save ▾</b> → Plot CSV: VisRD.
+ </p>
+ <p>
+ Útil como comprobación secundaria de un evento ya detectado; el manual indica que
+ los plots VisRD Highway / GENECONV no son los mejores para afinar breakpoints
+ (prefiere MaxChi, Chimaera, BURT, Bootscan).
+ </p>
+ </div>
+ </section>
+
+ <!-- 11 -->
+ <section id="identity">
+ <div data-lang="en">
+ <h2>11. Identity plot <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ <b class="ui">Identity plot</b> tab: identity / distance plot by window
+ (equivalent to DNA Distance Plots / ManDistPltMnu). Choose windows and step in Options → Plots
+ or in the panel. Curve crossings help place breakpoints.
+ </p>
+ <p>
+ Export with <b class="ui">Save ▾</b> → Plot CSV: identity plot, or PNG from Graphics.
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>11. Identity plot <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ Pestaña <b class="ui">Identity plot</b>: gráfico de identidad / distancia por ventana
+ (equivalente a DNA Distance Plots / ManDistPltMnu). Elige ventanas y paso en Options → Plots
+ o en el panel. Los cruces de curvas ayudan a situar breakpoints.
+ </p>
+ <p>
+ Exporta con <b class="ui">Save ▾</b> → Plot CSV: identity plot, o PNG desde Graphics.
+ </p>
+ </div>
+ </section>
+
+ <!-- 12 -->
+ <section id="profiles">
+ <div data-lang="en">
+ <h2>12. Profiles / Manual — triplet scans <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li><b class="ui">Profiles / Manual</b> tab (also from
+ <b class="ui">▶ Run ▾</b> → Manual GENECONV / Bootscan / …).</li>
+ <li>Choose the method and triplet (query + two parentals).</li>
+ <li>Click <b class="ui">Run method</b> for the sliding profile and triplet detections.</li>
+ <li>Compare MaxChi/Chimaera peaks with the edges of the selected event in the overview.</li>
+ </ol>
+ <div class="tip">
+ This is the equivalent of “Check using” + manual scans (Man*Mnu) on the desktop.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>12. Profiles / Manual — scans de un triplete <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Pestaña <b class="ui">Profiles / Manual</b> (también desde
+ <b class="ui">▶ Run ▾</b> → Manual GENECONV / Bootscan / …).</li>
+ <li>Elige el método y el triplete (query + dos parentales).</li>
+ <li>Pulsa <b class="ui">Run method</b> para el perfil deslizante y detecciones del triplete.</li>
+ <li>Compara picos MaxChi/Chimaera con los bordes del evento seleccionado en el overview.</li>
+ </ol>
+ <div class="tip">
+ Este es el equivalente a “Check using” + scans manuales (Man*Mnu) del escritorio.
+ </div>
+ </div>
+ </section>
+
+ <!-- 13 -->
+ <section id="bp">
+ <div data-lang="en">
+ <h2>13. Breakpoints — hotspots / coldspots <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ <b class="ui">Breakpoints</b> tab: distribution of detected breakpoints,
+ confidence bands under random recombination, and hot/cold p-value track
+ (BPDistPltMnu / BPDistPltMnu2). Requires events (ideally prior Accepts).
+ </p>
+ <p>
+ To associate breakpoints with genes/ORFs, load a site-set with
+ <b class="ui">Site set</b> (permutation enrichment test).
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>13. Breakpoints — hotspots / coldspots <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ Pestaña <b class="ui">Breakpoints</b>: distribución de breakpoints detectados,
+ bandas de confianza bajo recombinación aleatoria, y track de p-valores hot/cold
+ (BPDistPltMnu / BPDistPltMnu2). Requiere eventos (idealmente Accept previos).
+ </p>
+ <p>
+ Para asociar breakpoints a genes/ORFs, carga un site-set con
+ <b class="ui">Site set</b> (prueba de enriquecimiento por permutación).
+ </p>
+ </div>
+ </section>
+
+ <!-- 14 -->
+ <section id="recrate">
+ <div data-lang="en">
+ <h2>14. Rec. rate / LDHat <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li><b class="ui">Rec. rate</b> tab: recombination-rate profile
+ (LDHat INTERVAL port; π-hat fallback option).</li>
+ <li>StartRho / BlockPen and window/step parameters in <b class="ui">Options...</b>
+ (LDHat / Plots).</li>
+ <li>Toolbar button <b class="ui">LDHat test</b>: global CONVERT+PAIRWISE test
+ (desktop-style MsgBox message).</li>
+ </ol>
+ <div class="note">
+ This is a TypeScript <em>browser port</em>, not the Windows LDHat binary
+ .
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>14. Rec. rate / LDHat <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Pestaña <b class="ui">Rec. rate</b>: perfil de tasa de recombinación
+ (port de LDHat INTERVAL; opción de fallback π-hat).</li>
+ <li>Parámetros StartRho / BlockPen y ventana/paso en <b class="ui">Options...</b>
+ (LDHat / Plots).</li>
+ <li>Botón de barra <b class="ui">LDHat test</b>: test global CONVERT+PAIRWISE
+ (mensaje tipo MsgBox del escritorio).</li>
+ </ol>
+ <div class="note">
+ Es un <em>browser port</em> TypeScript, no el binario LDHat de Windows
+ .
+ </div>
+ </div>
+ </section>
+
+ <!-- 15 -->
+ <section id="phi">
+ <div data-lang="en">
+ <h2>15. PHI test <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ <b class="ui">PHI test</b> (Bruen et al., 2006) — Pairwise Homoplasy Index over the whole
+ alignment (≥4 sequences). Result in the status / info panel.
+ Complements window methods: indicates global evidence of recombination
+ without locating breakpoints.
+ </p>
+ <p>
+ Related compatibility matrices: <b class="ui">Compat. matrix</b> tab
+ (Jakobsen, Bruen/PHI sites, RF, SH, modularity, event matrices, MaxChi/LARD BP, etc.).
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>15. PHI test <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ <b class="ui">PHI test</b> (Bruen et al., 2006) — Pairwise Homoplasy Index sobre todo el
+ alineamiento (≥4 secuencias). Resultado en el panel de estado / info.
+ Complementa los métodos de ventana: indica si hay evidencia global de recombinación
+ sin localizar breakpoints.
+ </p>
+ <p>
+ Matrices de compatibilidad relacionadas: pestaña <b class="ui">Compat. matrix</b>
+ (Jakobsen, Bruen/PHI sites, RF, SH, modularity, matrices de eventos, MaxChi/LARD BP, etc.).
+ </p>
+ </div>
+ </section>
+
+ <!-- 16 -->
+ <section id="fubar">
+ <div data-lang="en">
+ <h2>16. FUBAR — codon selection <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ <b class="ui">FUBAR</b> runs a FUBAR-like analysis (Dirichlet grid + EM/MCMC in the browser)
+ on the codon alignment. Export per-site posteriors:
+ <b class="ui">Save ▾</b> → Plot CSV: FUBAR site posteriors.
+ </p>
+ <div class="warn">
+ Ensure the correct reading frame (Options → SCHEMA frame). This is not the HyPhy FUBAR binary;
+ it is the documented coverage substitute.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>16. FUBAR — selección en codones <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ <b class="ui">FUBAR</b> lanza un análisis tipo FUBAR (rejilla Dirichlet + EM/MCMC en el navegador)
+ sobre el alineamiento codonado. Exporta posteriores por sitio:
+ <b class="ui">Save ▾</b> → Plot CSV: FUBAR site posteriors.
+ </p>
+ <div class="warn">
+ Asegura marco de lectura correcto (Options → SCHEMA frame). No es el binario HyPhy FUBAR;
+ es el sustituto documentado en coverage.
+ </div>
+ </div>
+ </section>
+
+ <!-- 17 -->
+ <section id="schema">
+ <div data-lang="en">
+ <h2>17. SCHEMA — folding disruption <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li>Optional: <b class="ui">Load PDB</b> for a Cα contact map (better than sequence-only fallback).</li>
+ <li><b class="ui">SCHEMA</b> — intra-protein disruption (SCHEMAMnu).</li>
+ <li><b class="ui">SCHEMA II</b> — inter-chain contacts (requires PDB).</li>
+ <li><b class="ui">SCHEMA DNA</b> — nucleic-acid folding disruption (DNASCHEMAMnu).</li>
+ </ol>
+ <p>
+ As in the HIV example in the manual, a low p-value suggests that real breakpoints
+ fall where they disrupt folding less than random recombinants.
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>17. SCHEMA — disrupción de plegado <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Opcional: <b class="ui">Load PDB</b> para mapa de contactos Cα (mejor que el fallback solo-secuencia).</li>
+ <li><b class="ui">SCHEMA</b> — disrupción intra-proteína (SCHEMAMnu).</li>
+ <li><b class="ui">SCHEMA II</b> — contactos inter-cadena (requiere PDB).</li>
+ <li><b class="ui">SCHEMA DNA</b> — disrupción de plegado de ácido nucleico (DNASCHEMAMnu).</li>
+ </ol>
+ <p>
+ Como en el ejemplo HIV del manual, un p-valor bajo sugiere que los breakpoints
+ reales caen donde disruptían menos el plegado que recombinantes aleatorios.
+ </p>
+ </div>
+ </section>
+
+ <!-- 18 -->
+ <section id="save">
+ <div data-lang="en">
+ <h2>18. Save — alignment and project variants <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p><b class="ui">Save ▾</b> menu (maps to desktop Save* menus):</p>
+ <ul>
+ <li><em>Alignment as FASTA</em> — full alignment.</li>
+ <li><em>recombinant sequences removed</em> (SIndex 1) — drops recombinant daughters.</li>
+ <li><em>recombinant regions stripped</em> (SIndex 3) — removes recombinant tracts.</li>
+ <li><em>distributed / ExRec</em> (SIndex 7).</li>
+ <li><em>split by recombinants / breakpoints</em> — one file per piece.</li>
+ <li><em>only enabled / masked / disabled</em> — by MaskSeq 0/1/2.</li>
+ <li>PHYLIP / NEXUS / CLUSTAL formats; translated AA; ORF/gene; ancestral Fitch or ML.</li>
+ <li>Event CSV, plot CSV, PNG / copy clipboard.</li>
+ <li>Project <code>.json</code>, <code>.rdp</code>, <code>.rdp5</code>.</li>
+ </ul>
+ <p>
+ Shortcut: <b class="ui">Save project</b> saves alignment + events (Accept/Reject) + options + PHI.
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>18. Save — variantes de alineamiento y proyecto <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>Menú <b class="ui">Save ▾</b> (mapeo a menús Save* del escritorio):</p>
+ <ul>
+ <li><em>Alignment as FASTA</em> — alineamiento completo.</li>
+ <li><em>recombinant sequences removed</em> (SIndex 1) — quita hijas recombinantes.</li>
+ <li><em>recombinant regions stripped</em> (SIndex 3) — elimina tractos recombinantes.</li>
+ <li><em>distributed / ExRec</em> (SIndex 7).</li>
+ <li><em>split by recombinants / breakpoints</em> — un archivo por pieza.</li>
+ <li><em>only enabled / masked / disabled</em> — según MaskSeq 0/1/2.</li>
+ <li>Formatos PHYLIP / NEXUS / CLUSTAL; AA traducidas; ORF/gen; ancestral Fitch o ML.</li>
+ <li>CSV de eventos, CSV de plots, PNG / copy clipboard.</li>
+ <li>Proyecto <code>.json</code>, <code>.rdp</code>, <code>.rdp5</code>.</li>
+ </ul>
+ <p>
+ Atajo: <b class="ui">Save project</b> guarda alineamiento + eventos (Accept/Reject) + opciones + PHI.
+ </p>
+ </div>
+ </section>
+
+ <!-- 19 -->
+ <section id="qvr">
+ <div data-lang="en">
+ <h2>19. QvR / Manual — query vs reference <a class="back-top" href="#toc">↑ contents</a></h2>
+ <ol class="steps">
+ <li><b class="ui">QvR / Manual</b> tab.</li>
+ <li>Assign roles: query, reference, or excluded (MaskSeq ≠ 0 is treated as excluded).</li>
+ <li><b class="ui">▶ Run restricted scan</b> — only triplets defined by those roles
+ (QvR or subset mode), with methods active in Options.</li>
+ </ol>
+ <p>
+ Corresponds to desktop RecMnu Query vs Reference and ManualSeqSelect.
+ Useful when you already know a set of non-recombinant references.
+ </p>
+ <h3>Additional manual scans</h3>
+ <p>
+ Besides Profiles, <b class="ui">▶ Run ▾</b> → Manual * opens the chosen method
+ in Profiles for a triplet. PhylPro has its own
+ <b class="ui">PhylPro</b> tab (distance correlation / PXoverF).
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>19. QvR / Manual — query vs reference <a class="back-top" href="#toc">↑ índice</a></h2>
+ <ol class="steps">
+ <li>Pestaña <b class="ui">QvR / Manual</b>.</li>
+ <li>Asigna roles: query, referencia, o excluida (MaskSeq ≠ 0 se trata como excluida).</li>
+ <li><b class="ui">▶ Run restricted scan</b> — solo los tripletes definidos por esos roles
+ (modo QvR o subset), con los métodos activos en Options.</li>
+ </ol>
+ <p>
+ Corresponde a RecMnu Query vs Reference y ManualSeqSelect del escritorio.
+ Útil cuando ya conoces un conjunto de referencias no recombinantes.
+ </p>
+ <h3>Scans manuales adicionales</h3>
+ <p>
+ Además de Profiles, el menú <b class="ui">▶ Run ▾</b> → Manual * abre el método elegido
+ en Profiles para un triplete. PhylPro tiene pestaña propia
+ <b class="ui">PhylPro</b> (correlación de distancias / PXoverF).
+ </p>
+ </div>
+ </section>
+
+ <!-- 20 MATRIX -->
+ <section id="matrix">
+ <div data-lang="en">
+ <h2>Where to find each tool <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ Operational summary of the desktop programme. Right-column names are the English UI labels.
+ </p>
+ </div>
+ <div data-lang="es">
+ <h2>Dónde está cada herramienta <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ Resumen operativo del programa de escritorio. Los nombres en la columna derecha son los de la UI en inglés.
+ </p>
+ </div>
+ <table class="matrix">
+ <thead>
+ <tr data-lang="en">
+ <th>Desktop / manual function</th>
+ <th>Where to find it in RDP io</th>
+ </tr>
+ <tr data-lang="es">
+ <th>Función del escritorio / manual</th>
+ <th>Dónde está en RDP io</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Open alignment / project</td>
+ <td><b class="ui">Open...</b>, <b class="ui">Load project...</b>, <b class="ui">Recent ▾</b>, drop-zone</td>
+ </tr>
+ <tr>
+ <td>Options / General / methods</td>
+ <td><b class="ui">Options...</b> (tabs General, RDP, GENECONV, BootScan, …)</td>
+ </tr>
+ <tr>
+ <td>Run automated exploratory scan</td>
+ <td><b class="ui">▶ Run ▾</b> → Full exploratory scan</td>
+ </tr>
+ <tr>
+ <td>Automated single-method menus</td>
+ <td><b class="ui">▶ Run ▾</b> → Automated RDP / GENECONV / …</td>
+ </tr>
+ <tr>
+ <td>Stop scan</td>
+ <td><b class="ui">■ Stop</b></td>
+ </tr>
+ <tr>
+ <td>Schematic / overview + confirmation</td>
+ <td><em>Recombination overview</em> + <em>Recombination info</em> + Unique events list</td>
+ </tr>
+ <tr>
+ <td>Accept / Reject evidence</td>
+ <td><b class="ui">Accept</b> / <b class="ui">Reject</b> + scope unique event / this detection</td>
+ </tr>
+ <tr>
+ <td>Navigate events (PgUp/PgDn / arrows)</td>
+ <td><b class="ui">Go ▾</b> (prev / next / best / skip accepted|rejected)</td>
+ </tr>
+ <tr>
+ <td>Place breakpoints / swap parents</td>
+ <td><b class="ui">Edit ▾</b> Place BP…, Swap daughter↔…, Merge, Re-identify</td>
+ </tr>
+ <tr>
+ <td>Rescan after Accept</td>
+ <td><b class="ui">Re-scan masked</b></td>
+ </tr>
+ <tr>
+ <td>Re-Check all methods (RCheckMnu)</td>
+ <td><b class="ui">Re-Check all</b></td>
+ </tr>
+ <tr>
+ <td>Trees</td>
+ <td><b class="ui">Trees</b> tab</td>
+ </tr>
+ <tr>
+ <td>VisRD</td>
+ <td><b class="ui">VisRD</b> tab</td>
+ </tr>
+ <tr>
+ <td>DNA distance / identity plots</td>
+ <td><b class="ui">Identity plot</b> tab</td>
+ </tr>
+ <tr>
+ <td>Manual method profiles / Check using</td>
+ <td><b class="ui">Profiles / Manual</b> tab + Run ▾ Manual *</td>
+ </tr>
+ <tr>
+ <td>Breakpoint distribution</td>
+ <td><b class="ui">Breakpoints</b> tab</td>
+ </tr>
+ <tr>
+ <td>Recombination rate / LDHat</td>
+ <td><b class="ui">Rec. rate</b> tab + <b class="ui">LDHat test</b></td>
+ </tr>
+ <tr>
+ <td>PHI test (Bruen)</td>
+ <td><b class="ui">PHI test</b></td>
+ </tr>
+ <tr>
+ <td>Compatibility / event / BP matrices</td>
+ <td><b class="ui">Compat. matrix</b> tab</td>
+ </tr>
+ <tr>
+ <td>PhylPro</td>
+ <td><b class="ui">PhylPro</b> tab</td>
+ </tr>
+ <tr>
+ <td>Query vs Reference</td>
+ <td><b class="ui">QvR / Manual</b> tab</td>
+ </tr>
+ <tr>
+ <td>SCHEMA / SCHEMA II / DNA SCHEMA</td>
+ <td><b class="ui">Load PDB</b>, <b class="ui">SCHEMA</b>, <b class="ui">SCHEMA II</b>, <b class="ui">SCHEMA DNA</b></td>
+ </tr>
+ <tr>
+ <td>FUBAR / AlphaVals</td>
+ <td><b class="ui">FUBAR</b></td>
+ </tr>
+ <tr>
+ <td>Site-set association</td>
+ <td><b class="ui">Site set</b></td>
+ </tr>
+ <tr>
+ <td>Mask / disable sequences</td>
+ <td><b class="ui">Edit ▾</b> Enable/Mask/Disable/Invert/Auto-mask; Save filtered FASTA</td>
+ </tr>
+ <tr>
+ <td>Save results / recombination-free datasets</td>
+ <td><b class="ui">Save ▾</b> + <b class="ui">Save project</b></td>
+ </tr>
+ <tr>
+ <td>Undo edits</td>
+ <td><b class="ui">Edit ▾</b> → Undo last edit</td>
+ </tr>
+ <tr>
+ <td>Clear workspace</td>
+ <td><b class="ui">Clear</b></td>
+ </tr>
+ <tr data-lang="en">
+ <td>RDP5 Instruction Manual (PDF)</td>
+ <td>This tutorial + <a href="./RDP5Manual.pdf">RDP5 Manual (PDF)</a> link in Help</td>
+ </tr>
+ <tr data-lang="es">
+ <td>RDP5 Instruction Manual (PDF)</td>
+ <td>Este tutorial + enlace <a href="./RDP5Manual.pdf">RDP5 Manual (PDF)</a> en Ayuda</td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
+
+ <section id="cites">
+ <div data-lang="en">
+ <h2>Citations and notes <a class="back-top" href="#toc">↑ contents</a></h2>
+ <p>
+ If you publish results obtained with RDP io or RDP5, please <strong>cite RDP5</strong>:
+ </p>
+ <p>
+ <em>Martin DP, Varsani A, Roumagnac P, Botha G, Maslamoney S, Schwab T, Kelz Z, Kumar V &amp; Murrell B (2021) RDP5: a computer program for analyzing recombination in, and removing signals of recombination from, nucleotide sequence datasets. Virus Evolution 7: veaa087. <a href="https://doi.org/10.1093/ve/veaa087" target="_blank" rel="noopener">doi:10.1093/ve/veaa087</a></em>
+ </p>
+ <p>
+ A new publication for this browser version (RDP io) will also be included when it is available.
+ </p>
+ <p>
+ Also cite the specific detection method you used (RDP, GENECONV, Bootscan, MaxChi, Chimaera, SiScan,
+ 3Seq, PHI, VisRD, LDHat, SCHEMA, FUBAR, …).
+ For the recommended reference list,
+ <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">see here in the manual</a>.
+ </p>
+ <div class="tip">
+ RDP io reimplements the workflow in TypeScript in the browser. It does not launch the Windows desktop binaries.
+ </div>
+ </div>
+ <div data-lang="es">
+ <h2>Citas y notas <a class="back-top" href="#toc">↑ índice</a></h2>
+ <p>
+ Si publicas resultados obtenidos con RDP io o RDP5, <strong>cita RDP5</strong>:
+ </p>
+ <p>
+ <em>Martin DP, Varsani A, Roumagnac P, Botha G, Maslamoney S, Schwab T, Kelz Z, Kumar V &amp; Murrell B (2021) RDP5: a computer program for analyzing recombination in, and removing signals of recombination from, nucleotide sequence datasets. Virus Evolution 7: veaa087. <a href="https://doi.org/10.1093/ve/veaa087" target="_blank" rel="noopener">doi:10.1093/ve/veaa087</a></em>
+ </p>
+ <p>
+ También se incluirá una nueva publicación de esta versión en el navegador (RDP io) cuando esté disponible.
+ </p>
+ <p>
+ Cita además el método concreto que hayas usado (RDP, GENECONV, Bootscan, MaxChi, Chimaera, SiScan,
+ 3Seq, PHI, VisRD, LDHat, SCHEMA, FUBAR, …).
+ Para la lista de referencias recomendada,
+ <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">ver aquí en el manual</a>.
+ </p>
+ <div class="tip">
+ RDP io reimplementa el flujo de trabajo en TypeScript en el navegador. No lanza los binarios del escritorio Windows.
+ </div>
+ </div>
+ </section>
+
+ <footer class="doc">
+ <span data-lang="en">
+ RDP io tutorial ·
+ <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">see here in the manual (RDP5 PDF)</a>
+ </span>
+ <span data-lang="es">
+ Tutorial de RDP io ·
+ <a href="./RDP5Manual.pdf" target="_blank" rel="noopener">ver aquí en el manual (PDF RDP5)</a>
+ </span>
+ </footer>
+ </div>
+
+ <script>
+ (function () {
+ var KEY = "rdpio-tutorial-lang";
+ var TITLES = {
+        en: "RDP io Tutorial",
+        es: "Tutorial RDP io"
+      };
+
+ function applyLang(lang) {
+ if (lang !== "en" && lang !== "es") lang = "en";
+ document.documentElement.setAttribute("data-tutorial-lang", lang);
+ document.documentElement.setAttribute("lang", lang);
+ document.title = TITLES[lang];
+ try { localStorage.setItem(KEY, lang); } catch (e) { /* ignore */ }
+ document.querySelectorAll("[data-set-lang]").forEach(function (btn) {
+ var on = btn.getAttribute("data-set-lang") === lang;
+ btn.classList.toggle("active", on);
+ btn.setAttribute("aria-pressed", on ? "true" : "false");
+ });
+ }
+
+ var saved = "en";
+ try {
+ var v = localStorage.getItem(KEY);
+ if (v === "en" || v === "es") saved = v;
+ } catch (e) { /* ignore */ }
+ applyLang(saved);
+
+ document.querySelectorAll("[data-set-lang]").forEach(function (btn) {
+ btn.addEventListener("click", function () {
+ applyLang(btn.getAttribute("data-set-lang"));
+ });
+ });
+ })();
+ </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="RDP io">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a5a7a"/>
+      <stop offset="100%" stop-color="#16384f"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="8" fill="url(#bg)"/>
+  <rect x="8" y="14" width="48" height="7" rx="1.5" fill="#7ec8e3"/>
+  <rect x="8" y="26" width="20" height="7" rx="1.5" fill="#7ec8e3"/>
+  <rect x="28" y="26" width="16" height="7" rx="1.5" fill="#e85d4c"/>
+  <rect x="44" y="26" width="12" height="7" rx="1.5" fill="#7ec8e3"/>
+  <rect x="8" y="38" width="48" height="7" rx="1.5" fill="#f0a202"/>
+  <g stroke="#e8f4fc" stroke-width="1.8" stroke-linecap="round" fill="none">
+    <path d="M18 54 V48"/>
+    <path d="M18 48 L12 42"/>
+    <path d="M18 48 L24 42"/>
+    <path d="M12 42 V38"/>
+    <path d="M24 42 V38"/>
+  </g>
+  <circle cx="12" cy="36" r="2.2" fill="#9fe870"/>
+  <circle cx="24" cy="36" r="2.2" fill="#ffd166"/>
+  <circle cx="18" cy="54" r="2.2" fill="#fff"/>
+</svg>

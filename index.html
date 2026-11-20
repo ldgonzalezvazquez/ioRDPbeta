@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="RDP io — recombination detection in the browser (RDP, GENECONV, BootScan, MaxChi, Chimaera, SiScan, 3Seq), with trees, PHI, VisRD and plots." />
+    <title>RDP io — Recombination Detection</title>
+    <script>
+      // Apply theme before paint to avoid a light flash.
+      try {
+        var t = localStorage.getItem("iordp.theme");
+        if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+        else if (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)
+          document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="./assets/index-VfGqiIUh.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BcPY253Y.css">
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="titlebar">
+        <span class="titlebar-brand" aria-label="RDP io">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">RDP</span>
+          <span class="brand-ver">io</span>
+        </span>
+        <span class="titlebar-text">Recombination Detection</span>
+        <span
+          class="titlebar-devwarn"
+          title="This page is under development. If you reach it during one of the few moments it is open, do not trust the results. The developers retain exclusive rights to the code it contains."
+        >
+          — Under development: do not trust results; developers retain exclusive rights to this code.
+        </span>
+        <span id="title-file" class="titlebar-file"></span>
+        <button type="button" id="theme-toggle" class="theme-toggle" title="Toggle light / dark mode" aria-label="Toggle light / dark mode">
+          <span class="theme-ico theme-ico-moon" aria-hidden="true">☾</span>
+          <span class="theme-ico theme-ico-sun" aria-hidden="true">☀</span>
+        </button>
+      </header>
+
+      <div id="toolbar" class="toolbar" role="toolbar" aria-label="Main toolbar"></div>
+
+      <div class="workspace">
+        <aside class="sidebar">
+          <section class="panel">
+            <div class="panel-title" id="title-status">Analysis status</div>
+            <div id="status-panel" class="panel-body"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title" id="title-align">Alignment</div>
+            <div id="alignment-info" class="panel-body"></div>
+          </section>
+          <section class="panel panel-recomb">
+            <div class="panel-title" id="title-recomb">Recombination info</div>
+            <div id="recomb-info" class="panel-body"></div>
+          </section>
+        </aside>
+        <div id="split-sidebar" class="splitter split-v" role="separator" aria-orientation="vertical" title="Drag to resize sidebar"></div>
+
+        <main class="main">
+          <section class="panel panel-plot">
+            <div class="panel-title" id="title-plot">Recombination overview</div>
+            <div id="plot" class="panel-body panel-fill"></div>
+          </section>
+          <div id="split-plot" class="splitter split-h" role="separator" aria-orientation="horizontal" title="Drag to resize plot / lower panels"></div>
+          <div id="lower" class="lower">
+            <section class="panel panel-events">
+              <div class="panel-title" id="title-events">Unique recombination events</div>
+              <div id="event-list" class="panel-body panel-fill"></div>
+            </section>
+            <div id="split-events" class="splitter split-v" role="separator" aria-orientation="vertical" title="Drag to resize events / detail"></div>
+            <section class="panel panel-seq">
+              <div class="panel-title panel-tabs" role="tablist" id="title-detail">
+                <button type="button" id="tab-seq" class="tab active" role="tab" aria-selected="true" data-tab="seq">Alignment</button>
+                <button type="button" id="tab-trees" class="tab" role="tab" aria-selected="false" data-tab="trees" title="Form2 region + flank trees for the selected event (or: Show Trees / dblclick / T)">Trees</button>
+                <button type="button" id="tab-visrd" class="tab" role="tab" aria-selected="false" data-tab="visrd">VisRD</button>
+                <button type="button" id="tab-dist" class="tab" role="tab" aria-selected="false" data-tab="dist">Identity plot</button>
+                <button type="button" id="tab-profiles" class="tab" role="tab" aria-selected="false" data-tab="profiles">Profiles / Manual</button>
+                <button type="button" id="tab-bp" class="tab" role="tab" aria-selected="false" data-tab="bp">Breakpoints</button>
+                <button type="button" id="tab-recrate" class="tab" role="tab" aria-selected="false" data-tab="recrate">Rec. rate</button>
+                <button type="button" id="tab-compat" class="tab" role="tab" aria-selected="false" data-tab="compat">Compat. matrix</button>
+                <button type="button" id="tab-phylpro" class="tab" role="tab" aria-selected="false" data-tab="phylpro">PhylPro</button>
+                <button type="button" id="tab-qvr" class="tab" role="tab" aria-selected="false" data-tab="qvr">QvR / Manual</button>
+                <button type="button" id="tab-wide" class="tab tab-wide" aria-pressed="false" title="Widen this panel (hide the events table)">&#x21D4;</button>
+                <button type="button" id="tab-popout" class="tab tab-pop" title="Open this detail panel in a new window">&#x2197;</button>
+              </div>
+              <div id="sequence-view" class="panel-body panel-fill"></div>
+              <div id="tree-view" class="panel-body panel-fill tree-view hidden"></div>
+              <div id="visrd-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="dist-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="profiles-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="bp-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="recrate-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="compat-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="phylpro-view" class="panel-body panel-fill analysis-view hidden"></div>
+              <div id="qvr-view" class="panel-body panel-fill analysis-view hidden"></div>
+            </section>
+          </div>
+        </main>
+      </div>
+
+      <footer id="statusbar" class="statusbar"></footer>
+    </div>
+
+    <div id="options-root"></div>
+    <div id="help-root"></div>
+    <div id="dropzone-root"></div>
+  </body>
+</html>
