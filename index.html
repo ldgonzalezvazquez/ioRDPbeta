@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="RDP io — recombination detection in the browser (RDP, GENECONV, BootScan, MaxChi, Chimaera, SiScan, 3Seq), with trees, PHI, VisRD and plots." />
     <title>RDP io — Recombination Detection</title>
+    <!-- COOP/COEP via service worker (GitHub Pages cannot set headers). Enables
+         SharedArrayBuffer for nested scan workers ≈ Node parallel wall. -->
+    <script>
+      window.coi = { coepCredentialless: () => true, quiet: true };
+    </script>
+    <script src="./coi-serviceworker.js"></script>
     <script>
       // Apply theme before paint to avoid a light flash.
       try {
@@ -15,8 +21,8 @@
           document.documentElement.setAttribute("data-theme", "dark");
       } catch (e) {}
     </script>
-    <script type="module" crossorigin src="./assets/index-kKGjC20j.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BcPY253Y.css">
+    <script type="module" crossorigin src="./assets/index-W-xa4_Dq.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DXa3tyR0.css">
   </head>
   <body>
     <div id="app" class="app">
